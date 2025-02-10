@@ -29,6 +29,9 @@ class AuthController extends GetxController {
 
   Future<void> logOut() async {
     await _authService.signOut();
+    Get.offAllNamed(
+      Routes.loginPage,
+    );
   }
 
   Future<void> registerWithEmail() async {

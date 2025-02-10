@@ -32,8 +32,9 @@ class RegisterPage extends StatelessWidget {
                 Hero(
                   tag: 'app_logo',
                   child: Container(
-                    height: 80.h,
-                    width: 80.w,
+                    height: 120.h,
+                    width: 120.w,
+                    alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: Colors.blueAccent.shade100,
                       shape: BoxShape.circle,
@@ -47,16 +48,18 @@ class RegisterPage extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.person_add,
-                      size: 40.sp,
+                      size: 60.sp,
                       color: Colors.white,
                     ),
                   ),
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(
+                  height: 20.h,
+                ),
                 Text(
                   'Create Account',
                   style: TextStyle(
-                    fontSize: 24.sp,
+                    fontSize: 30.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                     letterSpacing: 0.5,
@@ -66,12 +69,14 @@ class RegisterPage extends StatelessWidget {
                 Text(
                   'Sign up to get started',
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 16.sp,
                     color: Colors.grey.shade600,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 25.h),
+                SizedBox(
+                  height: 25.h,
+                ),
                 Card(
                   elevation: 3,
                   shape: RoundedRectangleBorder(
@@ -82,7 +87,7 @@ class RegisterPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        authTextField(
+                        AuthTextField(
                           label: "Email",
                           hint: "Enter your email",
                           controller: authController.emailController,
@@ -98,7 +103,7 @@ class RegisterPage extends StatelessWidget {
                             return null;
                           },
                         ),
-                        authTextField(
+                        AuthTextField(
                           label: 'Password',
                           hint: "Enter your password",
                           controller: authController.passwordController,
@@ -114,7 +119,7 @@ class RegisterPage extends StatelessWidget {
                             return null;
                           },
                         ),
-                        authTextField(
+                        AuthTextField(
                           label: "Confirm Password",
                           hint: "Confirm your password",
                           controller: authController.confirmPasswordController,
@@ -131,7 +136,9 @@ class RegisterPage extends StatelessWidget {
                             return null;
                           },
                         ),
-                        SizedBox(height: 15.h),
+                        SizedBox(
+                          height: 15.h,
+                        ),
                         GetBuilder<AuthController>(
                           builder: (controller) => ElevatedButton(
                             onPressed: controller.isLoading
@@ -163,18 +170,23 @@ class RegisterPage extends StatelessWidget {
                                 : Text(
                                     'Create Account',
                                     style: TextStyle(
-                                      fontSize: 12.sp,
+                                      fontSize: 16.sp,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
                                   ),
                           ),
                         ),
-                        SizedBox(height: 15.h),
+                        SizedBox(
+                          height: 15.h,
+                        ),
                         Row(
                           children: [
                             Expanded(
-                                child: Divider(color: Colors.grey.shade400)),
+                              child: Divider(
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 10.w),
                               child: Text(
@@ -186,17 +198,26 @@ class RegisterPage extends StatelessWidget {
                               ),
                             ),
                             Expanded(
-                                child: Divider(color: Colors.grey.shade400)),
+                              child: Divider(
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
                           ],
                         ),
-                        SizedBox(height: 15.h),
+                        SizedBox(
+                          height: 15.h,
+                        ),
                         GetBuilder<AuthController>(
                           builder: (controller) => OutlinedButton.icon(
                             onPressed: controller.isLoading
                                 ? null
                                 : controller.signInWithGoogle,
-                            icon: Icon(Icons.login),
-                            label: Text('Sign up with Google'),
+                            icon: Icon(
+                              Icons.login,
+                            ),
+                            label: Text(
+                              'Sign up with Google',
+                            ),
                             style: OutlinedButton.styleFrom(
                               padding: EdgeInsets.symmetric(vertical: 10),
                               side: BorderSide(color: Colors.blueAccent),
@@ -210,7 +231,9 @@ class RegisterPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 15.h),
+                SizedBox(
+                  height: 15.h,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -218,19 +241,21 @@ class RegisterPage extends StatelessWidget {
                       "Already have an account? ",
                       style: TextStyle(
                         color: Colors.grey.shade700,
-                        fontSize: 11.sp,
+                        fontSize: 15.sp,
                       ),
                     ),
                     TextButton(
                       onPressed: authController.isLoading
                           ? null
-                          : () => Get.toNamed(Routes.loginPage),
+                          : () => Get.toNamed(
+                                Routes.loginPage,
+                              ),
                       child: Text(
                         'Sign In',
                         style: TextStyle(
                           color: Colors.blueAccent,
                           fontWeight: FontWeight.bold,
-                          fontSize: 11.sp,
+                          fontSize: 15.sp,
                         ),
                       ),
                     ),

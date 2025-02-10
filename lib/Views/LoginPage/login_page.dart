@@ -37,8 +37,8 @@ class LoginPage extends StatelessWidget {
                 Hero(
                   tag: 'app_logo',
                   child: Container(
-                    height: 100.h,
-                    width: 100.w,
+                    height: 120.h,
+                    width: 120.w,
                     decoration: BoxDecoration(
                       color: Colors.blueAccent.shade100,
                       shape: BoxShape.circle,
@@ -52,7 +52,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.person,
-                      size: 50.sp,
+                      size: 60.sp,
                       color: Colors.white,
                     ),
                   ),
@@ -63,7 +63,7 @@ class LoginPage extends StatelessWidget {
                 Text(
                   'Welcome Back!',
                   style: TextStyle(
-                    fontSize: 28.sp,
+                    fontSize: 32.sp,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                     letterSpacing: 0.5,
@@ -73,7 +73,7 @@ class LoginPage extends StatelessWidget {
                 Text(
                   'Sign in to continue',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 16.sp,
                     color: Colors.grey.shade600,
                   ),
                   textAlign: TextAlign.center,
@@ -91,7 +91,7 @@ class LoginPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        authTextField(
+                        AuthTextField(
                           label: "Email",
                           hint: "Enter your email",
                           controller: authController.logInEmailController,
@@ -107,7 +107,7 @@ class LoginPage extends StatelessWidget {
                             return null;
                           },
                         ),
-                        authTextField(
+                        AuthTextField(
                           label: 'Password',
                           hint: "Enter your password",
                           controller: authController.logInPasswordController,
@@ -171,7 +171,7 @@ class LoginPage extends StatelessWidget {
                               : Text(
                                   'Sign In',
                                   style: TextStyle(
-                                    fontSize: 14.sp,
+                                    fontSize: 16.sp,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
@@ -218,6 +218,7 @@ class LoginPage extends StatelessWidget {
                                 },
                           icon: FaIcon(
                             FontAwesomeIcons.google,
+                            color: Colors.blue,
                           ),
                           label: Text(
                             'Sign in with Google',
@@ -244,7 +245,7 @@ class LoginPage extends StatelessWidget {
                       "Don't have an account? ",
                       style: TextStyle(
                         color: Colors.grey.shade700,
-                        fontSize: 12.sp,
+                        fontSize: 15.sp,
                       ),
                     ),
                     TextButton(
@@ -258,7 +259,7 @@ class LoginPage extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.blueAccent,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12.sp,
+                          fontSize: 15.sp,
                         ),
                       ),
                     ),
