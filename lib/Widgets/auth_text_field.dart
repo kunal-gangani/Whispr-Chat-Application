@@ -16,7 +16,7 @@ class AuthTextField extends StatefulWidget {
   final void Function(String)? onSubmitted;
 
   const AuthTextField({
-    Key? key,
+    super.key,
     required this.label,
     required this.hint,
     required this.controller,
@@ -29,7 +29,7 @@ class AuthTextField extends StatefulWidget {
     this.onTap,
     this.onChanged,
     this.onSubmitted,
-  }) : super(key: key);
+  });
 
   @override
   State<AuthTextField> createState() => _AuthTextFieldState();

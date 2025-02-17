@@ -82,6 +82,7 @@ class LoginPage extends StatelessWidget {
                   height: 30.h,
                 ),
                 Card(
+                  color: Colors.blue.shade100,
                   elevation: 3,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -128,7 +129,9 @@ class LoginPage extends StatelessWidget {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: () => authController.resetPassword(
+                              authController.logInEmailController.text,
+                            ),
                             child: Text(
                               'Forgot Password?',
                               style: TextStyle(
@@ -184,7 +187,7 @@ class LoginPage extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Divider(
-                                color: Colors.grey.shade400,
+                                color: Colors.black,
                               ),
                             ),
                             Padding(
@@ -199,7 +202,7 @@ class LoginPage extends StatelessWidget {
                             ),
                             Expanded(
                               child: Divider(
-                                color: Colors.grey.shade400,
+                                color: Colors.black,
                               ),
                             ),
                           ],
@@ -222,10 +225,17 @@ class LoginPage extends StatelessWidget {
                           ),
                           label: Text(
                             'Sign in with Google',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            side: BorderSide(color: Colors.blueAccent),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12,
+                            ),
+                            side: BorderSide(
+                              color: Colors.blueAccent,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),

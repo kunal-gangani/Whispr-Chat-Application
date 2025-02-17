@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:whispr_chat_application/Controller/auth_controller.dart';
 import 'package:whispr_chat_application/Routes/routes.dart';
@@ -78,6 +79,7 @@ class RegisterPage extends StatelessWidget {
                   height: 25.h,
                 ),
                 Card(
+                  color: Colors.blue.shade100,
                   elevation: 3,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -212,15 +214,20 @@ class RegisterPage extends StatelessWidget {
                             onPressed: controller.isLoading
                                 ? null
                                 : controller.signInWithGoogle,
-                            icon: Icon(
-                              Icons.login,
+                            icon: FaIcon(
+                              FontAwesomeIcons.google,
+                              color: Colors.blue,
                             ),
                             label: Text(
                               'Sign up with Google',
                             ),
                             style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              side: BorderSide(color: Colors.blueAccent),
+                              padding: EdgeInsets.symmetric(
+                                vertical: 10,
+                              ),
+                              side: BorderSide(
+                                color: Colors.blueAccent,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),

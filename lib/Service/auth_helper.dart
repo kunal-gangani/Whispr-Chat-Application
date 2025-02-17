@@ -15,7 +15,10 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
+    await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
   Future<void> registerWithEmail({
@@ -42,5 +45,12 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
     await _googleSignIn.signOut();
+  }
+
+  Future<void> resetPassword(String email) async {
+    if (email.isEmpty) {
+      throw Exception("Please provide an email address.");
+    }
+    await _auth.sendPasswordResetEmail(email: email);
   }
 }

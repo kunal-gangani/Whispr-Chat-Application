@@ -29,9 +29,7 @@ class AuthController extends GetxController {
 
   Future<void> logOut() async {
     await _authService.signOut();
-    Get.offAllNamed(
-      Routes.loginPage,
-    );
+    Get.offAllNamed(Routes.loginPage);
   }
 
   Future<void> registerWithEmail() async {
@@ -93,6 +91,26 @@ class AuthController extends GetxController {
   Future<void> signOut() async {
     await _authService.signOut();
     Get.toNamed(Routes.loginPage);
+  }
+
+  Future<void> resetPassword(String email) async {
+    if (email.isEmpty) {
+      Get.snackbar('Error', 'Please enter your email',
+          backgroundColor: Colors.red.shade100, colorText: Colors.red.shade900);
+      return;
+    }
+    setLoading(true);
+    try {
+      await _authService.resetPassword(email);
+      Get.snackbar('Success', 'Password reset email sent',
+          backgroundColor: Colors.green.shade100,
+          colorText: Colors.green.shade900);
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to send reset email: $e',
+          backgroundColor: Colors.red.shade100, colorText: Colors.red.shade900);
+    } finally {
+      setLoading(false);
+    }
   }
 
   void clearFields() {

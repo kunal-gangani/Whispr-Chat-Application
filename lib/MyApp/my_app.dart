@@ -15,6 +15,9 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       builder: (context, _) {
         return GetMaterialApp(
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          themeMode: ThemeMode.system,
           debugShowCheckedModeBanner: false,
           getPages: Routes.myRoutes,
         );
