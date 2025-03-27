@@ -11,10 +11,7 @@ class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
   final _formKey = GlobalKey<FormState>();
-
-  final AuthController authController = Get.put(
-    AuthController(),
-  );
+  final AuthController authController = Get.put(AuthController());
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +19,13 @@ class LoginPage extends StatelessWidget {
       backgroundColor: Colors.blue.shade50,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal: 20.w,
-            vertical: 15.h,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  height: 30.h,
-                ),
+                SizedBox(height: 30.h),
                 Hero(
                   tag: 'app_logo',
                   child: Container(
@@ -57,9 +49,7 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 25.h,
-                ),
+                SizedBox(height: 25.h),
                 Text(
                   'Welcome Back!',
                   style: TextStyle(
@@ -72,15 +62,12 @@ class LoginPage extends StatelessWidget {
                 ),
                 Text(
                   'Sign in to continue',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade600),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(
-                  height: 30.h,
-                ),
+                SizedBox(height: 30.h),
+
+                // Auth Form
                 Card(
                   color: Colors.blue.shade100,
                   elevation: 3,
@@ -112,9 +99,7 @@ class LoginPage extends StatelessWidget {
                           label: 'Password',
                           hint: "Enter your password",
                           controller: authController.logInPasswordController,
-                          prefixIcon: Icon(
-                            Icons.lock_outlined,
-                          ),
+                          prefixIcon: Icon(Icons.lock_outlined),
                           isPassword: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -129,9 +114,11 @@ class LoginPage extends StatelessWidget {
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () => authController.resetPassword(
-                              authController.logInEmailController.text,
-                            ),
+                            onPressed: () {
+                              authController.resetPassword(
+                                authController.logInEmailController.text,
+                              );
+                            },
                             child: Text(
                               'Forgot Password?',
                               style: TextStyle(
@@ -141,55 +128,50 @@ class LoginPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 12.h,
-                        ),
-                        ElevatedButton(
-                          onPressed: authController.isLoading
-                              ? null
-                              : () {
-                                  if (_formKey.currentState!.validate()) {
-                                    authController.signInWithEmail();
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            elevation: 2,
-                          ),
-                          child: authController.isLoading
-                              ? SizedBox(
-                                  height: 18.h,
-                                  width: 18.w,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : Text(
-                                  'Sign In',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
+                        SizedBox(height: 12.h),
+
+                        // Use Obx to observe the isLoading state
+                        Obx(() => ElevatedButton(
+                              onPressed: authController.isLoading.value
+                                  ? null
+                                  : () {
+                                      if (_formKey.currentState!.validate()) {
+                                        authController.signInWithEmail();
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                        ),
-                        SizedBox(
-                          height: 20.h,
-                        ),
+                                elevation: 2,
+                              ),
+                              child: authController.isLoading.value
+                                  ? SizedBox(
+                                      height: 18.h,
+                                      width: 18.w,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white,
+                                        ),
+                                      ),
+                                    )
+                                  : Text(
+                                      'Sign In',
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                            )),
+                        SizedBox(height: 20.h),
+
                         Row(
                           children: [
-                            Expanded(
-                              child: Divider(
-                                color: Colors.black,
-                              ),
-                            ),
+                            Expanded(child: Divider(color: Colors.black)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 12.w),
                               child: Text(
@@ -200,66 +182,55 @@ class LoginPage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: Divider(
-                                color: Colors.black,
-                              ),
-                            ),
+                            Expanded(child: Divider(color: Colors.black)),
                           ],
                         ),
-                        SizedBox(
-                          height: 20.h,
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: authController.isLoading
-                              ? null
-                              : () {
-                                  authController.signInWithGoogle();
-                                  Fluttertoast.showToast(
-                                    msg: "Signing in with Google...",
-                                  );
-                                },
-                          icon: FaIcon(
-                            FontAwesomeIcons.google,
-                            color: Colors.blue,
-                          ),
-                          label: Text(
-                            'Sign in with Google',
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12,
-                            ),
-                            side: BorderSide(
-                              color: Colors.blueAccent,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
+                        SizedBox(height: 20.h),
+
+                        // Google Sign-In Button
+                        Obx(() => OutlinedButton.icon(
+                              onPressed: authController.isLoading.value
+                                  ? null
+                                  : () {
+                                      authController.signInWithGoogle();
+                                      Fluttertoast.showToast(
+                                        msg: "Signing in with Google...",
+                                      );
+                                    },
+                              icon: FaIcon(
+                                FontAwesomeIcons.google,
+                                color: Colors.blue,
+                              ),
+                              label: Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                side: BorderSide(color: Colors.blueAccent),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            )),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 20.h,
-                ),
+                SizedBox(height: 20.h),
+
+                // Sign Up Navigation
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Don't have an account? ",
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontSize: 15.sp,
-                      ),
+                      style: TextStyle(color: Colors.grey.shade700, fontSize: 15.sp),
                     ),
                     TextButton(
-                      onPressed: authController.isLoading
+                      onPressed: authController.isLoading.value
                           ? null
                           : () {
                               Get.toNamed(Routes.registerPage);

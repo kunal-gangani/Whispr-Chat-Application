@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:whispr_chat_application/Controller/auth_controller.dart';
-import 'package:whispr_chat_application/Controller/theme_controller.dart';
 import 'package:whispr_chat_application/Views/HomePage/HomePageWidgets/build_ai_chat_tab_widget.dart';
-import 'package:whispr_chat_application/Views/HomePage/HomePageWidgets/build_connections_widget.dart';
 import 'package:whispr_chat_application/Views/HomePage/HomePageWidgets/chats_tabs_widget.dart';
 import 'package:whispr_chat_application/Views/HomePage/HomePageWidgets/show_new_chats_options_widget.dart';
 import 'package:whispr_chat_application/Widgets/custom_tab_bar.dart';
@@ -13,17 +11,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find<AuthController>();
-    final ThemeController themeController = Get.put<ThemeController>(
-      ThemeController(),
-    );
+    final AuthController authController =
+        Get.put<AuthController>(AuthController());
 
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
+        backgroundColor: Colors.blue.shade50,
         appBar: AppBar(
           foregroundColor: Colors.white,
-          title: Text(
+          title: const Text(
             'Whispr Chat',
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -32,29 +29,30 @@ class HomePage extends StatelessWidget {
           backgroundColor: Colors.blueAccent,
           actions: [
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.search,
               ),
               onPressed: () {},
             ),
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.logout,
               ),
               onPressed: () => authController.logOut(),
             ),
           ],
-          bottom: CustomTabBar(),
+          bottom: const CustomTabBar(),
         ),
         drawer: Drawer(
+          backgroundColor: Colors.blue.shade50,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
               UserAccountsDrawerHeader(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.blueAccent,
                 ),
-                currentAccountPicture: CircleAvatar(
+                currentAccountPicture: const CircleAvatar(
                   backgroundColor: Colors.white,
                   child: Icon(
                     Icons.person,
@@ -62,79 +60,82 @@ class HomePage extends StatelessWidget {
                     color: Colors.blueAccent,
                   ),
                 ),
-                accountName: Text(
-                  authController.user?.displayName ?? 'User',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                accountEmail: Text(
-                  authController.user?.email ?? '',
-                ),
+                accountName: Obx(() {
+                  final userName =
+                      authController.userModel.value?.name ?? 'User';
+                  return Text(
+                    userName,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }),
+                accountEmail: Obx(() {
+                  final userEmail = authController.userModel.value?.email ?? '';
+                  return Text(
+                    userEmail,
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  );
+                }),
               ),
-              ListTile(
-                leading: Icon(
-                  Icons.person,
-                ),
-                title: Text(
-                  'Profile',
-                ),
-                onTap: () {},
+              _buildDrawerItem(
+                Icons.person,
+                "Profile",
+                () {},
               ),
-              ListTile(
-                leading: Icon(
-                  Icons.settings,
-                ),
-                title: Text(
-                  'Settings',
-                ),
-                onTap: () {},
+              _buildDrawerItem(
+                Icons.settings,
+                "Settings",
+                () {},
               ),
-              ListTile(
-                leading: Icon(
-                  themeController.isDarkMode.value
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                ),
-                title: Text(
-                  'Theme',
-                ),
-                onTap: () => themeController.toggleTheme(),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(
-                  Icons.help,
-                ),
-                title: Text(
-                  'Help & Feedback',
-                ),
-                onTap: () {},
+              const Divider(),
+              _buildDrawerItem(
+                Icons.help,
+                "Help & Feedback",
+                () {},
               ),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            // Chats Tab
             buildChatsTab(),
-            // Connections Tab
-            buildConnectionsTab(),
-            // AI Chat Tab
             buildAIChatTab(),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.blueAccent,
-          child: Icon(
+          child: const Icon(
             Icons.add,
             color: Colors.white,
           ),
           onPressed: () {
-            showNewChatOptions();
+            showNewChatOptions(
+              textColor: Colors.white, // Set default color
+            );
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: Colors.blueAccent,
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

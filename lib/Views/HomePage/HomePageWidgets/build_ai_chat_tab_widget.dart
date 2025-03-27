@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:whispr_chat_application/Routes/routes.dart';
 
 Widget buildAIChatTab() {
   return Padding(
@@ -38,7 +40,9 @@ Widget buildAIChatTab() {
         ),
         ElevatedButton.icon(
           onPressed: () {
-            // Start AI chat
+            Get.toNamed(
+              Routes.aiChatPage,
+            );
           },
           icon: Icon(
             Icons.chat,

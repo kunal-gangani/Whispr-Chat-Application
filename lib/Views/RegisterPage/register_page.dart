@@ -143,7 +143,7 @@ class RegisterPage extends StatelessWidget {
                         ),
                         GetBuilder<AuthController>(
                           builder: (controller) => ElevatedButton(
-                            onPressed: controller.isLoading
+                            onPressed: controller.isLoading.value
                                 ? null
                                 : () {
                                     if (formKey.currentState!.validate()) {
@@ -158,7 +158,7 @@ class RegisterPage extends StatelessWidget {
                               ),
                               elevation: 2,
                             ),
-                            child: controller.isLoading
+                            child: controller.isLoading.value
                                 ? SizedBox(
                                     height: 16.h,
                                     width: 16.w,
@@ -211,7 +211,7 @@ class RegisterPage extends StatelessWidget {
                         ),
                         GetBuilder<AuthController>(
                           builder: (controller) => OutlinedButton.icon(
-                            onPressed: controller.isLoading
+                            onPressed: controller.isLoading.value
                                 ? null
                                 : controller.signInWithGoogle,
                             icon: FaIcon(
@@ -252,7 +252,7 @@ class RegisterPage extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: authController.isLoading
+                      onPressed: authController.isLoading.value
                           ? null
                           : () => Get.toNamed(
                                 Routes.loginPage,

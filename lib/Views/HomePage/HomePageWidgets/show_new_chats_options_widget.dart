@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void showNewChatOptions() {
+void showNewChatOptions({required Color textColor}) {
   Get.bottomSheet(
     Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // color: Colors.white,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
         ),
@@ -33,6 +33,9 @@ void showNewChatOptions() {
             ),
             title: Text(
               'Add New Connection',
+              // style: TextStyle(
+              //   color: textColor,
+              // ),
             ),
             onTap: () {
               Get.back();
@@ -45,6 +48,9 @@ void showNewChatOptions() {
             ),
             title: Text(
               'Chat with AI',
+              // style: TextStyle(
+              //   color: textColor,
+              // ),
             ),
             onTap: () {
               Get.back();

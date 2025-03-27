@@ -6,16 +6,18 @@ class ThemeController extends GetxController {
   final GetStorage _storage = GetStorage();
   var isDarkMode = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    isDarkMode.value = _storage.read('isDarkMode') ?? false; 
-    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light,);
+  void defaultTheme() {
+    isDarkMode.value = _storage.read('isDarkMode') ?? false;
   }
 
   void toggleTheme() {
     isDarkMode.value = !isDarkMode.value;
-    _storage.write('isDarkMode', isDarkMode.value,);
-    Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light,);
+    _storage.write(
+      'isDarkMode',
+      isDarkMode.value,
+    );
+    Get.changeThemeMode(
+      isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+    );
   }
 }

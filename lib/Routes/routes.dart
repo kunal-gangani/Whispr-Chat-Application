@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:whispr_chat_application/Views/ChatWithAIPage/chat_with_ai_page.dart';
 import 'package:whispr_chat_application/Views/HomePage/home_page.dart';
 import 'package:whispr_chat_application/Views/LoginPage/login_page.dart';
 import 'package:whispr_chat_application/Views/RegisterPage/register_page.dart';
@@ -9,6 +10,7 @@ class Routes {
   static String loginPage = '/login';
   static String registerPage = '/register';
   static String homePage = '/home';
+  static String aiChatPage = '/aichat';
 
   static List<GetPage> myRoutes = [
     GetPage(
@@ -26,6 +28,10 @@ class Routes {
     GetPage(
       name: homePage,
       page: () => HomePage(),
+    ),
+    GetPage(
+      name: aiChatPage,
+      page: () => ChatWithAIPage(),
     ),
   ];
 }

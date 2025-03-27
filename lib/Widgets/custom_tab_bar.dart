@@ -15,7 +15,7 @@ class CustomTabBar extends StatelessWidget implements PreferredSizeWidget {
         color: Colors.blueAccent.shade700,
       ),
       child: TabBar(
-        indicatorWeight: 3,
+        indicatorWeight: 2,
         indicatorSize: TabBarIndicatorSize.tab,
         indicatorPadding: EdgeInsets.symmetric(horizontal: 16),
         labelStyle: TextStyle(
@@ -34,7 +34,6 @@ class CustomTabBar extends StatelessWidget implements PreferredSizeWidget {
         padding: EdgeInsets.zero, // Remove horizontal padding
         tabs: [
           _buildTab(Icons.chat_bubble, 'Chats'),
-          _buildTab(Icons.people, 'Connections'),
           _buildTab(Icons.smart_toy, 'AI Chat'),
         ],
       ),
