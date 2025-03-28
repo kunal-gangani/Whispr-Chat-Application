@@ -1,6 +1,7 @@
 import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:whispr_chat_application/Model/user_model.dart';
@@ -38,23 +39,16 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadAllUsers();
+    _listenToUsers(); // Listen for real-time updates
   }
 
-  Future<void> loadAllUsers() async {
-    try {
-      QuerySnapshot snapshot = await _firestore.collection('Users').get();
-      List<UserModel> users = snapshot.docs
-          .map((doc) => UserModel.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-
-      setUsers(users);
-      if (user != null) {
-        setCurrentUserId(user!.uid);
-      }
-    } catch (e) {
-      log("Error loading users: $e");
-    }
+  // Stream-based user fetching
+  void _listenToUsers() {
+    _authService.getAllUsersStream().listen((List<UserModel> userList) {
+      setUsers(userList);
+    }, onError: (error) {
+      log("Error fetching users: $error");
+    });
   }
 
   List<UserModel> get filteredUsers =>
@@ -69,9 +63,12 @@ class AuthController extends GetxController {
     try {
       DocumentSnapshot userDoc =
           await _firestore.collection('Users').doc(user!.uid).get();
+
       if (userDoc.exists) {
-        userModel.value =
-            UserModel.fromJson(userDoc.data() as Map<String, dynamic>);
+        userModel.value = UserModel.fromJson(
+          userDoc.data() as Map<String, dynamic>,
+          docId: userDoc.id,
+        );
       }
     } catch (e) {
       log("Error loading user data: $e");

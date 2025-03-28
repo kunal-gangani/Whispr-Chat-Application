@@ -114,7 +114,7 @@ class HomePage extends StatelessWidget {
           ),
           onPressed: () {
             showNewChatOptions(
-              textColor: Colors.white, // Set default color
+              textColor: Colors.white,
             );
           },
         ),
