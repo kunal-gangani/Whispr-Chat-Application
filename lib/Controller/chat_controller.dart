@@ -1,43 +1,54 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:whispr_chat_application/Controller/auth_controller.dart';
 
 class ChatController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final RxMap<String, List<Map<String, dynamic>>> _messages =
-      <String, List<Map<String, dynamic>>>{}.obs;
-  final RxString _currentChatId = ''.obs;
+  final AuthController _authController = Get.find<AuthController>();
+
+  // Reactive variables
+  final RxList<Map<String, dynamic>> messages = <Map<String, dynamic>>[].obs;
+  final RxString currentUserId = ''.obs;
+  final RxString currentChatId = ''.obs; // Added currentChatId
+  final RxBool isLoading = false.obs;
   final TextEditingController messageController = TextEditingController();
   final FocusNode messageFocusNode = FocusNode();
 
-  // Getters
-  List<Map<String, dynamic>> get messages =>
-      _messages[_currentChatId.value] ?? [];
-  String get currentChatId => _currentChatId.value;
+  @override
+  void onInit() {
+    super.onInit();
+    currentUserId.value = _authController.currentUserId.value;
+  }
 
-  // Initialize chat with a user
-  void initializeChat(String currentUserId, String otherUserId) {
-    _currentChatId.value = _generateChatId(currentUserId, otherUserId);
+  /// Generate consistent chat ID between two users
+  String generateChatId(String userId1, String userId2) {
+    List<String> ids = [userId1, userId2];
+    ids.sort(); // Ensure consistent order
+    return ids.join('_');
+  }
+
+  /// Initialize chat with another user
+  void initializeChat(String otherUserId) {
+    currentChatId.value = generateChatId(currentUserId.value, otherUserId);
     _listenToMessages();
   }
 
-  String _generateChatId(String userId1, String userId2) {
-    return userId1.hashCode <= userId2.hashCode
-        ? '$userId1-$userId2'
-        : '$userId2-$userId1';
-  }
-
+  /// Listen for messages in the current chat
   void _listenToMessages() {
+    if (currentChatId.value.isEmpty) return;
+
     _firestore
         .collection('chats')
-        .doc(_currentChatId.value)
+        .doc(currentChatId.value)
         .collection('messages')
         .orderBy('timestamp', descending: true)
         .snapshots()
         .listen((snapshot) {
-      _messages[_currentChatId.value] = snapshot.docs.map((doc) {
+      messages.assignAll(snapshot.docs.map((doc) {
         final data = doc.data();
         return {
           'id': doc.id,
@@ -46,65 +57,22 @@ class ChatController extends GetxController {
           'timestamp': data['timestamp'],
           'isRead': data['isRead'] ?? false,
         };
-      }).toList();
-      update();
+      }).toList());
+    }, onError: (error) {
+      log("Error listening to messages: $error");
     });
   }
 
-  Future<void> sendMessage(String senderId) async {
-    final text = messageController.text.trim();
-    if (text.isEmpty) return;
-
-    try {
-      await _firestore
-          .collection('chats')
-          .doc(_currentChatId.value)
-          .collection('messages')
-          .add({
-        'text': text,
-        'senderId': senderId,
-        'timestamp': FieldValue.serverTimestamp(),
-        'isRead': false,
-      });
-      messageController.clear();
-      messageFocusNode.requestFocus();
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to send message');
-    }
+  /// Get the last message for the current chat
+  String getLastMessage() {
+    if (messages.isEmpty) return "No messages yet";
+    return messages.first['text'] ?? "";
   }
 
-  @override
-  void onClose() {
-    messageController.dispose();
-    messageFocusNode.dispose();
-    super.onClose();
-  }
-
-  String getLastMessage(String chatId) {
-    if (_messages[chatId] == null || _messages[chatId]!.isEmpty) {
-      return "No messages yet";
-    }
-    return _messages[chatId]!.first['text'] ?? "";
-  }
-
-  int getUnreadMessageCount(String otherUserId) {
-    final currentUserId = Get.find<AuthController>().currentUserId.value;
-    if (currentUserId == null) return 0;
-
-    final chatId = _generateChatId(currentUserId, otherUserId);
-    if (_messages[chatId] == null) return 0;
-
-    return _messages[chatId]!
-        .where(
-            (msg) => msg['senderId'] != currentUserId && msg['isRead'] == false)
-        .length;
-  }
-
-  String getLastMessageTime(String chatId) {
-    if (_messages[chatId] == null || _messages[chatId]!.isEmpty) {
-      return "";
-    }
-    final timestamp = _messages[chatId]!.first['timestamp'];
+  /// Get formatted last message time
+  String getLastMessageTime() {
+    if (messages.isEmpty) return "";
+    final timestamp = messages.first['timestamp'];
     if (timestamp is Timestamp) {
       return _formatMessageTime(timestamp.toDate());
     }
@@ -117,32 +85,94 @@ class ChatController extends GetxController {
     final yesterday = today.subtract(const Duration(days: 1));
 
     if (date.isAfter(today)) {
-      return DateFormat('HH:mm').format(date); // Today - show time only
+      return DateFormat('HH:mm').format(date);
     } else if (date.isAfter(yesterday)) {
       return 'Yesterday';
     } else {
-      return DateFormat('MMM d').format(date); // Older - show date
+      return DateFormat('MMM d').format(date);
     }
   }
 
-  Future<void> markMessagesAsRead(String chatId, String currentUserId) async {
-    final unreadMessages = _messages[chatId]!
-        .where(
-            (msg) => msg['senderId'] != currentUserId && msg['isRead'] == false)
-        .toList();
+  /// Get unread message count for the current chat
+  int getUnreadMessageCount() {
+    return messages
+        .where((msg) =>
+            msg['senderId'] != currentUserId.value && msg['isRead'] == false)
+        .length;
+  }
 
-    final batch = _firestore.batch();
-    for (var msg in unreadMessages) {
-      final docRef = _firestore
+  /// Send a new message
+  Future<void> sendMessage(String otherUserId) async {
+    final messageText = messageController.text.trim();
+    if (messageText.isEmpty) return;
+    if (currentUserId.value.isEmpty) {
+      Get.snackbar('Error', 'You must be logged in to send messages');
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      // Use currentChatId if available, otherwise generate new one
+      final chatId = currentChatId.value.isNotEmpty
+          ? currentChatId.value
+          : generateChatId(currentUserId.value, otherUserId);
+
+      // Create/update the chat document
+      await _firestore.collection('chats').doc(chatId).set({
+        'participants': [currentUserId.value, otherUserId],
+        'lastMessage': messageText,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'lastMessageSender': currentUserId.value,
+        'unreadCount': FieldValue.increment(1),
+      }, SetOptions(merge: true));
+
+      // Add the new message
+      await _firestore
           .collection('chats')
           .doc(chatId)
           .collection('messages')
-          .doc(msg['id']);
-      batch.update(docRef, {'isRead': true});
-    }
+          .add({
+        'text': messageText,
+        'senderId': currentUserId.value,
+        'timestamp': FieldValue.serverTimestamp(),
+        'isRead': false,
+      });
 
-    if (unreadMessages.isNotEmpty) {
-      await batch.commit();
+      messageController.clear();
+      messageFocusNode.requestFocus();
+
+      // Update unread count for recipient
+      await _updateRecipientUnreadCount(chatId, otherUserId);
+    } catch (e) {
+      log('Error sending message: $e');
+      Get.snackbar('Error', 'Failed to send message');
+    } finally {
+      isLoading.value = false;
     }
+  }
+
+  Future<void> _updateRecipientUnreadCount(
+      String chatId, String recipientId) async {
+    try {
+      await _firestore.collection('Users').doc(recipientId).update({
+        'unreadChats.$chatId': FieldValue.increment(1),
+      });
+    } catch (e) {
+      log('Error updating unread count: $e');
+    }
+  }
+
+  /// Clear chat data when leaving chat
+  void clearChat() {
+    messages.clear();
+    currentChatId.value = '';
+  }
+
+  @override
+  void onClose() {
+    messageController.dispose();
+    messageFocusNode.dispose();
+    clearChat();
+    super.onClose();
   }
 }

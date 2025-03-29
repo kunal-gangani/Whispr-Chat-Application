@@ -12,6 +12,7 @@ class AuthController extends GetxController {
   final AuthService _authService = AuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Controllers
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -19,33 +20,38 @@ class AuthController extends GetxController {
   final TextEditingController logInEmailController = TextEditingController();
   final TextEditingController logInPasswordController = TextEditingController();
 
+  // Observables
   var isLoading = false.obs;
   var userModel = Rxn<UserModel>();
-
-  User? get user => _authService.currentUser;
-  bool get isAuthenticated => user != null;
-
   final RxList<UserModel> allUsers = <UserModel>[].obs;
   final RxString currentUserId = ''.obs;
 
-  void setUsers(List<UserModel> users) {
-    allUsers.assignAll(users);
-  }
-
-  void setCurrentUserId(String id) {
-    currentUserId.value = id;
-  }
+  // Getters
+  User? get user => _authService.currentUser;
+  bool get isAuthenticated => user != null;
 
   @override
   void onInit() {
     super.onInit();
-    _listenToUsers(); // Listen for real-time updates
+    _listenToAuthChanges();
+    _listenToUsers();
   }
 
-  // Stream-based user fetching
+  void _listenToAuthChanges() {
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        currentUserId.value = user.uid;
+        loadUserData();
+      } else {
+        currentUserId.value = '';
+        userModel.value = null;
+      }
+    });
+  }
+
   void _listenToUsers() {
     _authService.getAllUsersStream().listen((List<UserModel> userList) {
-      setUsers(userList);
+      allUsers.assignAll(userList);
     }, onError: (error) {
       log("Error fetching users: $error");
     });
@@ -54,9 +60,6 @@ class AuthController extends GetxController {
   List<UserModel> get filteredUsers =>
       allUsers.where((user) => user.id != currentUserId.value).toList();
 
-  void setLoading(bool value) => isLoading.value = value;
-
-  /// Load user data from Firestore
   Future<void> loadUserData() async {
     if (user == null) return;
 
@@ -69,21 +72,20 @@ class AuthController extends GetxController {
           userDoc.data() as Map<String, dynamic>,
           docId: userDoc.id,
         );
+        currentUserId.value = user!.uid;
       }
     } catch (e) {
       log("Error loading user data: $e");
     }
   }
 
-  /// Register with email & password
   Future<void> registerWithEmail() async {
     if (passwordController.text != confirmPasswordController.text) {
-      Get.snackbar('Validation Error', 'Passwords do not match',
-          backgroundColor: Colors.red.shade100);
+      Get.snackbar('Error', 'Passwords do not match');
       return;
     }
 
-    setLoading(true);
+    isLoading.value = true;
     try {
       UserCredential userCredential = await _authService.registerWithEmail(
         email: emailController.text.trim(),
@@ -91,100 +93,109 @@ class AuthController extends GetxController {
       );
 
       if (userCredential.user != null) {
-        UserModel newUser = UserModel(
+        final newUser = UserModel(
           id: userCredential.user!.uid,
-          name: userCredential.user!.displayName ?? '',
+          name: userCredential.user!.displayName ??
+              emailController.text.split('@')[0],
           email: userCredential.user!.email!,
           profilePictureUrl: userCredential.user!.photoURL ?? '',
         );
 
         await _firestore
             .collection('Users')
-            .doc(userCredential.user!.uid)
+            .doc(newUser.id)
             .set(newUser.toJson());
         userModel.value = newUser;
+        Get.offAllNamed(Routes.homePage);
       }
-
-      clearFields();
-      Get.offAllNamed(Routes.homePage);
     } catch (e) {
       log("Registration Error: $e");
-      Get.snackbar('Error', 'Registration failed: $e',
-          backgroundColor: Colors.red.shade100);
+      Get.snackbar('Error', 'Registration failed: ${e.toString()}');
     } finally {
-      setLoading(false);
+      clearFields();
+      isLoading.value = false;
     }
   }
 
-  /// Sign in with email & password
   Future<void> signInWithEmail() async {
-    setLoading(true);
+    isLoading.value = true;
     try {
-      UserCredential userCredential = await _authService.signInWithEmail(
+      await _authService.signInWithEmail(
         email: logInEmailController.text.trim(),
         password: logInPasswordController.text.trim(),
       );
-
-      await loadUserData();
       Get.offAllNamed(Routes.homePage);
     } catch (e) {
       log("Login Error: $e");
-      Get.snackbar('Error', 'Login failed: $e',
-          backgroundColor: Colors.red.shade100);
+      Get.snackbar('Error', 'Login failed: ${e.toString()}');
     } finally {
-      setLoading(false);
+      clearFields();
+      isLoading.value = false;
     }
   }
 
-  /// Google Sign-In
   Future<void> signInWithGoogle() async {
-    setLoading(true);
+    isLoading.value = true;
     try {
       UserCredential userCredential = await _authService.signInWithGoogle();
 
       if (userCredential.user != null) {
-        await loadUserData();
-      }
+        final userDoc = await _firestore
+            .collection('Users')
+            .doc(userCredential.user!.uid)
+            .get();
 
-      Get.offAllNamed(Routes.homePage);
+        if (!userDoc.exists) {
+          final newUser = UserModel(
+            id: userCredential.user!.uid,
+            name: userCredential.user!.displayName ?? '',
+            email: userCredential.user!.email!,
+            profilePictureUrl: userCredential.user!.photoURL ?? '',
+          );
+          await _firestore
+              .collection('Users')
+              .doc(newUser.id)
+              .set(newUser.toJson());
+        }
+
+        Get.offAllNamed(Routes.homePage);
+      }
     } catch (e) {
       log("Google Sign-In Error: $e");
-      Get.snackbar("Error", "Google sign-in failed.");
+      Get.snackbar('Error', 'Google sign-in failed');
     } finally {
-      setLoading(false);
+      isLoading.value = false;
     }
   }
 
-  /// Reset Password
   Future<void> resetPassword(String email) async {
     if (email.isEmpty) {
-      Get.snackbar('Error', 'Please enter your email',
-          backgroundColor: Colors.red.shade100);
+      Get.snackbar('Error', 'Please enter your email');
       return;
     }
 
-    setLoading(true);
+    isLoading.value = true;
     try {
       await _authService.resetPassword(email);
-      Get.snackbar('Success', 'Password reset email sent',
-          backgroundColor: Colors.green.shade100);
+      Get.snackbar('Success', 'Password reset email sent');
     } catch (e) {
       log("Password Reset Error: $e");
-      Get.snackbar('Error', 'Failed to send reset email: $e',
-          backgroundColor: Colors.red.shade100);
+      Get.snackbar('Error', 'Failed to send reset email');
     } finally {
-      setLoading(false);
+      isLoading.value = false;
     }
   }
 
-  /// Log out user
   Future<void> logOut() async {
-    await _authService.signOut();
-    userModel.value = null;
-    Get.offAllNamed(Routes.loginPage);
+    try {
+      await _authService.signOut();
+      Get.offAllNamed(Routes.loginPage);
+    } catch (e) {
+      log("Logout Error: $e");
+      Get.snackbar('Error', 'Logout failed');
+    }
   }
 
-  /// Clear input fields
   void clearFields() {
     emailController.clear();
     passwordController.clear();

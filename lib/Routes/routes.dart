@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:whispr_chat_application/Model/user_model.dart';
+import 'package:whispr_chat_application/RouteGuard/route_guard.dart';
 import 'package:whispr_chat_application/Views/ChatWithAIPage/chat_with_ai_page.dart';
 import 'package:whispr_chat_application/Views/ChatWithUserPage/chat_with_user_page.dart';
 import 'package:whispr_chat_application/Views/HomePage/home_page.dart';
@@ -18,7 +19,7 @@ class Routes {
   static List<GetPage> myRoutes = [
     GetPage(
       name: splashScreen,
-      page: () => SplashScreen(),
+      page: () => const SplashScreen(),
     ),
     GetPage(
       name: loginPage,
@@ -31,20 +32,21 @@ class Routes {
     GetPage(
       name: homePage,
       page: () => HomePage(),
+      middlewares: [AuthGuard()],
     ),
     GetPage(
       name: aiChatPage,
       page: () => ChatWithAIPage(),
+      middlewares: [AuthGuard()],
     ),
     GetPage(
       name: userChatPage,
-      page: () => ChatWithUserPage(
-        user: UserModel(
-          id: 1.toString(),
-          name: "Kunal",
-          email: "thekunalgangani@gmail.com",
-        ),
-      ),
+      page: () {
+        // Get arguments passed when navigating to this route
+        final UserModel user = Get.arguments;
+        return ChatWithUserPage(user: user);
+      },
+      middlewares: [AuthGuard()],
     ),
   ];
 }
