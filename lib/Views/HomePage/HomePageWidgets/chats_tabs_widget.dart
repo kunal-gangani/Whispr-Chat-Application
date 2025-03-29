@@ -2,26 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:whispr_chat_application/Controller/auth_controller.dart';
-import 'package:whispr_chat_application/Model/user_model.dart';
+import 'package:whispr_chat_application/Controller/chat_controller.dart';
 import 'package:whispr_chat_application/Routes/routes.dart';
 
 Widget buildChatsTab() {
   final AuthController authController = Get.find<AuthController>();
+  final ChatController chatController =
+      Get.put<ChatController>(ChatController());
 
   return Obx(() {
-    final users = authController.filteredUsers; // Exclude the current user
+    final users = authController.filteredUsers;
 
     if (users.isEmpty) {
       return Center(
         child: Text(
           'No users available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+          style: TextStyle(fontSize: 16.sp, color: Colors.grey,),
         ),
       );
     }
 
     return ListView.separated(
-      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w,),
       itemCount: users.length,
       separatorBuilder: (context, index) => Divider(
         thickness: 1,
@@ -29,6 +31,8 @@ Widget buildChatsTab() {
       ),
       itemBuilder: (context, index) {
         final user = users[index];
+        final lastMessage = chatController.getLastMessage(user.id);
+        final unreadCount = chatController.getUnreadMessageCount(user.id);
 
         return ListTile(
           leading: CircleAvatar(
@@ -56,43 +60,45 @@ Widget buildChatsTab() {
             ),
           ),
           subtitle: Text(
-            user.email,
+            lastMessage ?? 'No messages yet',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
+            style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600,),
           ),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '12:30 PM',
+                chatController.getLastMessageTime(user.id) ?? '',
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: Colors.grey,
                 ),
               ),
-              SizedBox(height: 5.h),
-              Container(
-                padding: EdgeInsets.all(6.r),
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '2',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.bold,
+              if (unreadCount > 0) SizedBox(height: 5.h),
+              if (unreadCount > 0)
+                Container(
+                  padding: EdgeInsets.all(6.r),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    unreadCount.toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           onTap: () {
             Get.toNamed(
               Routes.userChatPage,
+              arguments: user,
             );
           },
         );

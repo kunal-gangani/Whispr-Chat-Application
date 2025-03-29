@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:whispr_chat_application/Model/user_model.dart';
 import 'package:whispr_chat_application/Views/ChatWithAIPage/chat_with_ai_page.dart';

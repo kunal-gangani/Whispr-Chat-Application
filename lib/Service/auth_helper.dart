@@ -106,7 +106,7 @@ class AuthService {
     return _firestore.collection('Users').snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         return UserModel.fromJson(
-          doc.data() as Map<String, dynamic>,
+          doc.data(),
           docId: doc.id,
         );
       }).toList();
